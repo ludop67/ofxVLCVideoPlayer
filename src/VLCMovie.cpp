@@ -1,7 +1,5 @@
 //#define _WIN32_WINNT 0x0500
 #include "VLCMovie.h"
-#include <media_internal.h>
-//#include <plugins/vlc_input_item.h>
 
 
 //libvlc_instance_t *VLCMovie::libvlc = NULL;
@@ -62,7 +60,7 @@ cout << "libvlc: " << libvlc << endl;
 	//libvlc_audio_output_set(mp, "adummy");
 	libvlc_audio_output_set(mp, "waveout");
 
-    // TODO: libvlc_video_set_format‚Ì‘ã‚í‚è‚Élibvlc_video_set_format_callbacks‚ðŽg‚¤
+    // TODO: libvlc_video_set_formatï¿½Ì‘ï¿½ï¿½ï¿½ï¿½libvlc_video_set_format_callbacksï¿½ï¿½ï¿½gï¿½ï¿½
     videoWidth = 0;
     videoHeight = 0;
   //  libvlc_video_set_callbacks(mp, NULL, NULL, NULL, this);
@@ -131,18 +129,22 @@ cout << "libvlc: " << libvlc << endl;
     eventManager = libvlc_media_player_event_manager(mp);
     libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, vlcEventStatic,  this);
 
-    input_item_t *it = m->p_input_item;
+    // Always NULL ....
+    // input_item_t *it = m->p_input_item;
     
-    for (int i = 0; i < it->i_es; i++) {
-        es_format_t *es = it->es[i];
-        if (es) {
-            if (es->video.i_frame_rate) {
-                fps = (float)es->video.i_frame_rate / es->video.i_frame_rate_base;
-                cout << "fps: " << fps << endl;
-            }
-            //cout << es->video.i_width << endl;
-        }
-    }
+    // for (int i = 0; i < it->i_es; i++) {
+    //     es_format_t *es = it->es[i];
+    //     if (es) {
+    //         if (es->video.i_frame_rate) {
+    //             fps = (float)es->video.i_frame_rate / es->video.i_frame_rate_base;
+    //             cout << "fps: " << fps << endl;
+    //         }
+    //         //cout << es->video.i_width << endl;
+    //     }
+    // } 
+    
+    if(fps == -1)
+        fps = 27.1; // Hardcode cause code above doesn't work
 
     isVLCInitialized = true;
 }
@@ -250,7 +252,7 @@ void VLCMovie::vlcEvent(const libvlc_event_t *event) {
 //}
 //
 //int VLCMovie::setup(char *format, unsigned int *rate, unsigned int *channels) {
-//    // ‰¹ºƒZƒbƒgƒAƒbƒv
+//    // ï¿½ï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½Aï¿½bï¿½v
 //    //printf("channels: %d rate: %d format: %As\n", *channels, *rate, format); 
 //    audioChannels = *channels;
 //    //soundStream.setup(*channels, 0, *rate, 2048, 8);
@@ -291,7 +293,7 @@ void VLCMovie::display(void *id) {
     }
 
     //imageFlipMutex.lock(10000);
-    if (imageFlipMutex.tryLock()) {
+    if (imageFlipMutex.try_lock()) {
 //cout << "flip" << endl;
         ofImage *tmp = backImage;
         backImage = frontImage;
@@ -326,7 +328,7 @@ void VLCMovie::updateTexture() {
     if (!isFliped) return;
     tryUpdate = true;
     //cout << "try" << endl;
-    imageFlipMutex.lock(10000);
+    imageFlipMutex.lock();
     //cout << "update" << endl;
     frontImage->update();
     frontTexture = &frontImage->getTextureReference();
@@ -385,6 +387,10 @@ void VLCMovie::setTimeMillis(libvlc_time_t ms){
 
 float VLCMovie::getFPS() {
     return fps;
+}
+
+void VLCMovie::setFPS(float fps) {
+    VLCMovie::fps = fps;
 }
 
 float VLCMovie::getDuration() {

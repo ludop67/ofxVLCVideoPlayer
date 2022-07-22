@@ -8,7 +8,7 @@ typedef SSIZE_T ssize_t;
 #include <vlc/vlc.h>
 #include <memory>
 
-// TODO: ƒXƒ^[ƒgƒtƒŒ[ƒ€AƒGƒ“ƒhƒtƒŒ[ƒ€
+// TODO: ï¿½Xï¿½^ï¿½[ï¿½gï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Aï¿½Gï¿½ï¿½ï¿½hï¿½tï¿½ï¿½ï¿½[ï¿½ï¿½
 //class VLCMovie : public AbstractMovie, public ofBaseSoundOutput
 class VLCMovie
 {
@@ -32,7 +32,7 @@ class VLCMovie
     bool isVLCInitialized;
 
     int videoWidth, videoHeight;
-    float fps;
+    float fps = -1;
 	libvlc_time_t video_length_ms;
 	bool isThumbnailOK;
     bool isFliped;
@@ -42,8 +42,8 @@ class VLCMovie
     bool movieFinished;
 
 
-    Poco::Mutex backImageMutex;
-    Poco::Mutex imageFlipMutex;
+    std::mutex backImageMutex;
+    std::mutex imageFlipMutex;
 
     // VLC Video callbaks
     static void *lockStatic(void *data, void **p_pixels);
@@ -94,6 +94,7 @@ public:
     unsigned int getImageWidth();
     unsigned int getImageHeight();
     float getFPS();
+    void setFPS(float fps);
     float getDuration();
     int getTotalNumFrames();
     void updateTexture();
