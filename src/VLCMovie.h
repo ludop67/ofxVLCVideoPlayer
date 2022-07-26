@@ -8,11 +8,23 @@ typedef SSIZE_T ssize_t;
 #include <vlc/vlc.h>
 #include <memory>
 
+typedef int     (*openCallback) (void *opaque, void **datap, uint64_t *sizep);
+typedef void    (*closeCallback)(void *opaque);
+typedef ssize_t (*readCallback) (void *opaque, unsigned char *buf, size_t len);
+typedef int     (*seekCallback) (void *opaque, uint64_t offset);
+
 // TODO: �X�^�[�g�t���[���A�G���h�t���[��
 //class VLCMovie : public AbstractMovie, public ofBaseSoundOutput
 class VLCMovie
 {
+    enum { FILE, CALLBACKS } mediaType;
     string filename;
+    void * opaqueMedia;
+    openCallback openCb;
+    closeCallback closeCb;
+    readCallback readCb;
+    seekCallback seekCb;
+
     ofImage image[2];
     ofImage *frontImage;
     ofImage *backImage;
@@ -26,6 +38,7 @@ class VLCMovie
     libvlc_event_manager_t *eventManager;
 
     void initializeVLC();
+    void loadMedia();
     void cleanupVLC();
 
     bool isInitialized;
@@ -84,6 +97,7 @@ class VLCMovie
 
 public:
     VLCMovie(string filename);
+    VLCMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb, readCallback readCb, seekCallback seekCb);
     ~VLCMovie(void);
     void init();
     void play();

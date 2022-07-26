@@ -1,12 +1,19 @@
 //#define _WIN32_WINNT 0x0500
 #include "VLCMovie.h"
+#include <vlc/libvlc_media.h>
 
 
 //libvlc_instance_t *VLCMovie::libvlc = NULL;
 
 //VLCMovie::VLCMovie(string filename) : filename(filename), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), soundBuffer(2048 * 320), isInitialized(false) {
-VLCMovie::VLCMovie(string filename) : filename(filename), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), isInitialized(false), isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false) {
+VLCMovie::VLCMovie(string filename) : mediaType(FILE), filename(filename), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), isInitialized(false), isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false) {
     cout << "VLCMovie constructor" << endl;
+}
+
+VLCMovie::VLCMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb, readCallback readCb, seekCallback seekCb)
+    : mediaType(CALLBACKS), opaqueMedia(opaqueMedia), openCb(openCb), closeCb(closeCb), readCb(readCb), seekCb(seekCb), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), isInitialized(false), isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false)
+{
+    cout << "VLCMovie constructor (callbacks)" << endl;
 }
 
 VLCMovie::~VLCMovie(void)
@@ -27,6 +34,14 @@ void VLCMovie::init() {
 
 	frontTexture = &frontImage->getTextureReference();
     isInitialized = true;
+}
+
+void VLCMovie::loadMedia()
+{
+    if(mediaType == FILE)
+        m = libvlc_media_new_path(libvlc, filename.c_str());
+    else if(mediaType == CALLBACKS)
+        m = libvlc_media_new_callbacks(libvlc, openCb, readCb, seekCb, closeCb, opaqueMedia);
 }
 
 void VLCMovie::initializeVLC() {
@@ -55,7 +70,7 @@ cout << "libvlc: " << libvlc << endl;
         aout = aout->p_next;
     }
 
-    m = libvlc_media_new_path(libvlc, filename.c_str());
+    loadMedia();
     mp = libvlc_media_player_new_from_media(m);
 	//libvlc_audio_output_set(mp, "adummy");
 	libvlc_audio_output_set(mp, "waveout");
@@ -79,6 +94,22 @@ cout << "libvlc: " << libvlc << endl;
   //  libvlc_media_player_set_position(mp, 0);
 
     libvlc_media_parse(m);
+    // libvlc_media_parse_with_options(m, libvlc_media_parse_network, 1000);
+    // libvlc_media_parsed_status_t status = libvlc_media_get_parsed_status(m);
+    // while(status != libvlc_media_parsed_status_done)
+    // {
+    //     #ifdef WIN32
+    //         Sleep(500);
+    //     #else
+    //         usleep(500 * 1000);
+    //     #endif
+
+    //     status = libvlc_media_get_parsed_status(m);
+    //     if(status == libvlc_media_parsed_status_failed
+    //         || status == libvlc_media_parsed_status_timeout)
+    //         return;
+    // }
+
     videoWidth = libvlc_video_get_width(mp);
     videoHeight = libvlc_video_get_height(mp);
     video_length_ms = libvlc_media_get_duration(m);
@@ -175,6 +206,8 @@ void VLCMovie::rewind() {
 void VLCMovie::stop() {
 
     libvlc_media_player_stop(mp);
+    movieFinished = false;
+    setTimeMillis(0);
 }
 
 void VLCMovie::seek(float position) {

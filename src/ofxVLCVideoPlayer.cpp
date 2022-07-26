@@ -14,7 +14,18 @@ ofxVLCVideoPlayer::~ofxVLCVideoPlayer(void)
 
 bool ofxVLCVideoPlayer::loadMovie(string name) {
     closeMovie();
-    vlcMovieInstance = shared_ptr<VLCMovie>(new VLCMovie(ofToDataPath(name)));
+    vlcMovieInstance = shared_ptr<VLCMovie>(new VLCMovie(/*ofToDataPath(*/name/*)*/));
+    vlcMovieInstance->init();
+    bool result = vlcMovieInstance->getIsInitialized();
+    if (!result) vlcMovieInstance.reset();
+
+    return result;
+}
+
+bool ofxVLCVideoPlayer::loadMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb, readCallback readCb, seekCallback seekCb)
+{
+    closeMovie();
+    vlcMovieInstance = shared_ptr<VLCMovie>(new VLCMovie(opaqueMedia, openCb, closeCb, readCb, seekCb));
     vlcMovieInstance->init();
     bool result = vlcMovieInstance->getIsInitialized();
     if (!result) vlcMovieInstance.reset();
@@ -45,12 +56,14 @@ ofTexture &ofxVLCVideoPlayer::getTextureReference() {
 
 void ofxVLCVideoPlayer::draw(float x, float y, float w, float h) {
     if (vlcMovieInstance) {
+        ofSetColor(255, 255, 255); // Mandatory
         vlcMovieInstance->getTexture().draw(x, y, 0, w, h);
     }
 }
 
 void ofxVLCVideoPlayer::draw(float x, float y) {
     if (vlcMovieInstance) {
+        ofSetColor(255, 255, 255); // Mandatory
         vlcMovieInstance->getTexture().draw(x, y);
     }
 }

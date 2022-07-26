@@ -12,6 +12,7 @@ public:
     ofxVLCVideoPlayer(void);
     ~ofxVLCVideoPlayer(void);
     bool loadMovie(string name);
+    bool loadMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb, readCallback readCb, seekCallback seekCb);
     void closeMovie();
     void update();
     ofTexture &getTextureReference();
