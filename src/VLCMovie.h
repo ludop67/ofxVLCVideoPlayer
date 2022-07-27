@@ -51,6 +51,7 @@ class VLCMovie
     bool isFliped;
     bool isLooping;
     bool tryUpdate;
+    bool needPostInit = false;
 
     bool movieFinished;
 
@@ -100,6 +101,7 @@ public:
     VLCMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb, readCallback readCb, seekCallback seekCb);
     ~VLCMovie(void);
     void init();
+    void postInit(); // For initialization that needs to be done in the same thread as open frameworks
     void play();
     void rewind();
     void stop();
@@ -117,6 +119,7 @@ public:
     bool isMovieFinished();
     bool isPlaying();
     bool getIsInitialized();
+    bool getNeedsPostInit();
 	float getPosition();
 	libvlc_time_t getTimeMillis();
     void setTimeMillis(libvlc_time_t ms);

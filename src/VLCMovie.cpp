@@ -1,5 +1,6 @@
 //#define _WIN32_WINNT 0x0500
 #include "VLCMovie.h"
+#include <cassert>
 #include <vlc/libvlc_media.h>
 
 
@@ -28,11 +29,18 @@ void VLCMovie::init() {
     initializeVLC();
     if (!isVLCInitialized) return;
 
+    needPostInit = true;
+}
+
+void VLCMovie::postInit()
+{
     for (int i = 0; i < 2; i++) {
         image[i].allocate(videoWidth, videoHeight, OF_IMAGE_COLOR_ALPHA);
     }
 
 	frontTexture = &frontImage->getTextureReference();
+
+    needPostInit = false;
     isInitialized = true;
 }
 
@@ -63,12 +71,12 @@ cout << "libvlc: " << libvlc << endl;
         }
     //}
 
-    libvlc_audio_output_t *aout = libvlc_audio_output_list_get(libvlc);
-    while(aout) {
-        cout << aout->psz_name << endl;
-        cout << aout->psz_description << endl;
-        aout = aout->p_next;
-    }
+    // libvlc_audio_output_t *aout = libvlc_audio_output_list_get(libvlc);
+    // while(aout) {
+    //     cout << aout->psz_name << endl;
+    //     cout << aout->psz_description << endl;
+    //     aout = aout->p_next;
+    // }
 
     loadMedia();
     mp = libvlc_media_player_new_from_media(m);
@@ -208,6 +216,7 @@ void VLCMovie::stop() {
     libvlc_media_player_stop(mp);
     movieFinished = false;
     setTimeMillis(0);
+    updateTexture();
 }
 
 void VLCMovie::seek(float position) {
@@ -302,6 +311,16 @@ void *VLCMovie::lock(void **p_pixels) {
         usleep(10 * 1000);
 #endif
     }
+
+    while(!isInitialized)
+    {
+#ifdef WIN32
+        Sleep(10);
+#else
+        usleep(10 * 1000);
+#endif
+    }
+
     //backImageMutex.lock(10000);
     //imageFlipMutex.lock(10000);
     *p_pixels = backImage->getPixels().getData();
@@ -400,6 +419,11 @@ bool VLCMovie::isPlaying() {
 
 bool VLCMovie::getIsInitialized() {
     return isInitialized;
+}
+
+bool VLCMovie::getNeedsPostInit()
+{
+    return needPostInit;
 }
 
 float VLCMovie::getPosition() {

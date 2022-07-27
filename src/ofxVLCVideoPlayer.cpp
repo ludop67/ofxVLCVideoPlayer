@@ -16,7 +16,7 @@ bool ofxVLCVideoPlayer::loadMovie(string name) {
     closeMovie();
     vlcMovieInstance = shared_ptr<VLCMovie>(new VLCMovie(/*ofToDataPath(*/name/*)*/));
     vlcMovieInstance->init();
-    bool result = vlcMovieInstance->getIsInitialized();
+    bool result = vlcMovieInstance->getNeedsPostInit();
     if (!result) vlcMovieInstance.reset();
 
     return result;
@@ -27,10 +27,16 @@ bool ofxVLCVideoPlayer::loadMovie(void * opaqueMedia, openCallback openCb, close
     closeMovie();
     vlcMovieInstance = shared_ptr<VLCMovie>(new VLCMovie(opaqueMedia, openCb, closeCb, readCb, seekCb));
     vlcMovieInstance->init();
-    bool result = vlcMovieInstance->getIsInitialized();
+    bool result = vlcMovieInstance->getNeedsPostInit();
     if (!result) vlcMovieInstance.reset();
 
     return result;
+}
+
+void ofxVLCVideoPlayer::finalizeInit()
+{
+    if(vlcMovieInstance)
+        vlcMovieInstance->postInit();
 }
 
 void ofxVLCVideoPlayer::closeMovie() {
@@ -117,19 +123,28 @@ float ofxVLCVideoPlayer::getWidth() {
 }
 
 bool ofxVLCVideoPlayer::isPlaying() {
-   if (vlcMovieInstance) {
+    if (vlcMovieInstance) {
         return vlcMovieInstance->isPlaying();
-   } else {
-       return false;
-   }
+    } else {
+        return false;
+    }
+}
+
+bool ofxVLCVideoPlayer::getNeedsPostInit()
+{
+    if (vlcMovieInstance) {
+        return vlcMovieInstance->getNeedsPostInit();
+    } else {
+        return false;
+    }
 }
 
 bool ofxVLCVideoPlayer::isLoaded() {
-   if (vlcMovieInstance) {
+    if (vlcMovieInstance) {
         return vlcMovieInstance->getIsInitialized();
-   } else {
-       return false;
-   }
+    } else {
+        return false;
+    }
 }
 
 float ofxVLCVideoPlayer::getPosition() {
