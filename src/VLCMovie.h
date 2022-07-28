@@ -103,6 +103,7 @@ public:
     void init();
     void postInit(); // For initialization that needs to be done in the same thread as open frameworks
     void play();
+    void pause();
     void rewind();
     void stop();
     void seek(float position);

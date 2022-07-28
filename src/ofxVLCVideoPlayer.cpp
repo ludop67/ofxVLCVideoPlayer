@@ -80,6 +80,12 @@ void ofxVLCVideoPlayer::play() {
     }
 }
 
+void ofxVLCVideoPlayer::pause() {
+    if (vlcMovieInstance) {
+        vlcMovieInstance->pause();
+    }
+}
+
 void ofxVLCVideoPlayer::stop() {
     if (vlcMovieInstance) {
         vlcMovieInstance->stop();

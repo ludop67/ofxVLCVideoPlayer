@@ -2,6 +2,7 @@
 #include "VLCMovie.h"
 #include <cassert>
 #include <vlc/libvlc_media.h>
+#include <vlc/libvlc_media_player.h>
 
 
 //libvlc_instance_t *VLCMovie::libvlc = NULL;
@@ -205,6 +206,11 @@ void VLCMovie::play() {
 
     libvlc_media_player_play(mp);
 
+}
+
+void VLCMovie::pause()
+{
+    libvlc_media_player_pause(mp);
 }
 
 void VLCMovie::rewind() {
