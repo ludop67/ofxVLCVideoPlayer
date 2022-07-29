@@ -229,6 +229,7 @@ void VLCMovie::stop() {
 
     libvlc_media_player_stop(mp);
     movieFinished = false;
+    firstFrameReady = false;
     setTimeMillis(0);
     updateTexture();
 }
