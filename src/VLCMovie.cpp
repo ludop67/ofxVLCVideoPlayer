@@ -8,12 +8,20 @@
 //libvlc_instance_t *VLCMovie::libvlc = NULL;
 
 //VLCMovie::VLCMovie(string filename) : filename(filename), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), soundBuffer(2048 * 320), isInitialized(false) {
-VLCMovie::VLCMovie(string filename) : mediaType(FILE), filename(filename), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), isInitialized(false), isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false) {
+VLCMovie::VLCMovie(string filename)
+    : mediaType(FILE), filename(filename), frontImage(&image[1]), backImage(&image[0]),
+        isFliped(false), isLooping(true), movieFinished(false), isInitialized(false),
+        isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false)
+{
     cout << "VLCMovie constructor" << endl;
 }
 
-VLCMovie::VLCMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb, readCallback readCb, seekCallback seekCb)
-    : mediaType(CALLBACKS), opaqueMedia(opaqueMedia), openCb(openCb), closeCb(closeCb), readCb(readCb), seekCb(seekCb), frontImage(&image[1]), backImage(&image[0]), isFliped(true), isLooping(true), movieFinished(false), isInitialized(false), isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false)
+VLCMovie::VLCMovie(void * opaqueMedia, openCallback openCb, closeCallback closeCb,
+    readCallback readCb, seekCallback seekCb)
+    : mediaType(CALLBACKS), opaqueMedia(opaqueMedia), openCb(openCb), closeCb(closeCb),
+        readCb(readCb), seekCb(seekCb), frontImage(&image[1]), backImage(&image[0]),
+        isFliped(false), isLooping(true), movieFinished(false), isInitialized(false),
+        isVLCInitialized(false), isThumbnailOK(false), frontTexture(NULL), tryUpdate(false)
 {
     cout << "VLCMovie constructor (callbacks)" << endl;
 }
@@ -358,7 +366,7 @@ void VLCMovie::display(void *id) {
         frontImage = tmp;
         isFliped = true;
         imageFlipMutex.unlock();
-    } 
+    }
     //imageFlipMutex.unlock();
 }
 
@@ -396,6 +404,7 @@ void VLCMovie::updateTexture() {
     //cout << libvlc_video_get_width(mp) << endl;
     //cout << libvlc_video_get_height(mp) << endl;
 
+    firstFrameReady = true;
 }
 
 ofTexture &VLCMovie::getTexture() {
@@ -421,6 +430,11 @@ bool VLCMovie::isMovieFinished() {
 
 bool VLCMovie::isPlaying() {
     return libvlc_media_player_is_playing(mp);
+}
+
+bool VLCMovie::isFirstFrameReady()
+{
+    return firstFrameReady;
 }
 
 bool VLCMovie::getIsInitialized() {

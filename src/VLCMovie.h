@@ -52,6 +52,7 @@ class VLCMovie
     bool isLooping;
     bool tryUpdate;
     bool needPostInit = false;
+    bool firstFrameReady = false;
 
     bool movieFinished;
 
@@ -119,6 +120,7 @@ public:
 	ofImage &getThumbnailImage();
     bool isMovieFinished();
     bool isPlaying();
+    bool isFirstFrameReady();
     bool getIsInitialized();
     bool getNeedsPostInit();
 	float getPosition();

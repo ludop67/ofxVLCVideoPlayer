@@ -153,6 +153,15 @@ bool ofxVLCVideoPlayer::isLoaded() {
     }
 }
 
+bool ofxVLCVideoPlayer::isFrameReady()
+{
+    if (vlcMovieInstance) {
+        return vlcMovieInstance->isFirstFrameReady();
+    } else {
+        return false;
+    }
+}
+
 float ofxVLCVideoPlayer::getPosition() {
     if (vlcMovieInstance) {
         return vlcMovieInstance->getPosition();

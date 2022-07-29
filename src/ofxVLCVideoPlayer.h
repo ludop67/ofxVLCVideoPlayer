@@ -31,6 +31,7 @@ public:
     bool isPlaying();
     bool getNeedsPostInit();
 	bool isLoaded();
+    bool isFrameReady();
 	float getPosition();
 	int getTimeMillis();
 	void setTimeMillis(int ms);
