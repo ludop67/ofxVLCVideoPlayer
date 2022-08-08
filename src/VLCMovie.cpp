@@ -472,7 +472,7 @@ void VLCMovie::setFPS(float fps) {
 }
 
 float VLCMovie::getDuration() {
-    return video_length_ms / fps;
+    return video_length_ms;
 }
 
 void VLCMovie::setFrame(int frame) {
