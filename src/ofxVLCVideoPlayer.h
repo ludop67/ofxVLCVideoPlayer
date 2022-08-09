@@ -32,6 +32,7 @@ public:
     bool getNeedsPostInit();
 	bool isLoaded();
     bool isFrameReady();
+    bool isRotated();
 	float getPosition();
 	int getTimeMillis();
 	void setTimeMillis(int ms);

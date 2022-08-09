@@ -438,6 +438,27 @@ bool VLCMovie::isFirstFrameReady()
     return firstFrameReady;
 }
 
+bool VLCMovie::isRotated()
+{
+    libvlc_media_track_t ** tracks;
+    unsigned count = libvlc_media_tracks_get(m, &tracks);
+    if(!count)
+        return false;
+
+    for(size_t trackIdx = 0; trackIdx < count; ++trackIdx)
+    {
+        if(tracks[trackIdx]->i_type == libvlc_track_video)
+        {
+            libvlc_video_orient_t orientation = tracks[trackIdx]->video->i_orientation;
+            libvlc_media_tracks_release(tracks, count);
+            return orientation == libvlc_video_orient_left_bottom
+                || orientation == libvlc_video_orient_right_top;
+        }
+    }
+    libvlc_media_tracks_release(tracks, count);
+    return false;
+}
+
 bool VLCMovie::getIsInitialized() {
     return isInitialized;
 }

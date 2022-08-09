@@ -121,6 +121,7 @@ public:
     bool isMovieFinished();
     bool isPlaying();
     bool isFirstFrameReady();
+    bool isRotated();
     bool getIsInitialized();
     bool getNeedsPostInit();
 	float getPosition();

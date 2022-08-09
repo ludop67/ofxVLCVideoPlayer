@@ -162,6 +162,15 @@ bool ofxVLCVideoPlayer::isFrameReady()
     }
 }
 
+bool ofxVLCVideoPlayer::isRotated()
+{
+    if (vlcMovieInstance) {
+        return vlcMovieInstance->isRotated();
+    } else {
+        return false;
+    }
+}
+
 float ofxVLCVideoPlayer::getPosition() {
     if (vlcMovieInstance) {
         return vlcMovieInstance->getPosition();
