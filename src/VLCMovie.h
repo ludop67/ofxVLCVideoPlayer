@@ -56,7 +56,7 @@ class VLCMovie
 
     bool movieFinished;
 
-
+    std::mutex playerLock;
     std::mutex backImageMutex;
     std::mutex imageFlipMutex;
 

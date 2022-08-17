@@ -62,6 +62,8 @@ void VLCMovie::loadMedia()
 }
 
 void VLCMovie::initializeVLC() {
+    std::unique_lock<std::mutex> lock{playerLock};
+
     //if (!libvlc) {
         cout << "init libvlc" << endl;
         char const *vlc_argv[] = {
@@ -198,13 +200,20 @@ cout << "libvlc: " << libvlc << endl;
 }
 
 void VLCMovie::cleanupVLC() {
-    libvlc_media_player_stop(mp);
-    libvlc_media_player_release(mp);
+    std::unique_lock<std::mutex> lock{playerLock};
+
+    if(isInitialized)
+    {
+        libvlc_media_player_stop(mp);
+        libvlc_media_player_release(mp);
+    }
     libvlc_media_release(m);
     libvlc_release(libvlc);
 }
 
 void VLCMovie::play() {
+    std::unique_lock<std::mutex> lock{playerLock};
+
     if (isLooping) {
         libvlc_media_add_option(m, "input-repeat=-1");
     } else {
@@ -218,14 +227,20 @@ void VLCMovie::play() {
 
 void VLCMovie::pause()
 {
+    std::unique_lock<std::mutex> lock{playerLock};
     libvlc_media_player_pause(mp);
 }
 
 void VLCMovie::rewind() {
+    std::unique_lock<std::mutex> lock{playerLock};
     libvlc_media_player_set_position(mp, 0);
 }
 
 void VLCMovie::stop() {
+    std::unique_lock<std::mutex> lock{playerLock};
+
+    if(!isInitialized)
+        return;
 
     libvlc_media_player_stop(mp);
     movieFinished = false;
@@ -235,6 +250,8 @@ void VLCMovie::stop() {
 }
 
 void VLCMovie::seek(float position) {
+    std::unique_lock<std::mutex> lock{playerLock};
+
     libvlc_media_player_set_position(mp, position);
 }
 
@@ -512,9 +529,11 @@ int VLCMovie::getTotalNumFrames() {
 }
 
 void VLCMovie::setVolume(int volume) {
+    std::unique_lock<std::mutex> lock{playerLock};
     libvlc_audio_set_volume(mp, volume);
 }
 
 void VLCMovie::toggleMute() {
+    std::unique_lock<std::mutex> lock{playerLock};
     libvlc_audio_toggle_mute(mp);
 }
